@@ -46,7 +46,7 @@ public class BTNavigationDropdownMenu: UIView {
     // The height of the cell. Default is 50
     public var cellHeight: NSNumber! {
         get {
-            return CGFloat(self.configuration.cellHeight)
+            return CGFloat(self.configuration.cellHeight!) as NSNumber!
         }
         set(value) {
             self.configuration.cellHeight = CGFloat(value)
@@ -224,7 +224,7 @@ public class BTNavigationDropdownMenu: UIView {
         }
     }
     
-    public var didSelectItemAtIndexHandler: ((indexPath: Int) -> ())?
+    public var didSelectItemAtIndexHandler: ((_ indexPath: Int) -> ())?
     public var isShown: Bool!
     
     private weak var navigationController: UINavigationController?
@@ -302,7 +302,7 @@ public class BTNavigationDropdownMenu: UIView {
         
         // Init table view
         let navBarHeight = self.navigationController?.navigationBar.bounds.size.height ?? 0
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height ?? 0
+        let statusBarHeight = UIApplication.shared.statusBarFrame.height 
         self.tableView = BTTableView(frame: CGRect(x: menuWrapperBounds.origin.x, y: menuWrapperBounds.origin.y + 0.5, width: menuWrapperBounds.width, height: menuWrapperBounds.height + 300 - navBarHeight - statusBarHeight), items: items, title: title, configuration: self.configuration)
         self.tableView.menuDelegate = menuDelegate
         
@@ -310,7 +310,7 @@ public class BTNavigationDropdownMenu: UIView {
             guard let selfie = self else {
                 return
             }
-            selfie.didSelectItemAtIndexHandler!(indexPath: indexPath)
+            selfie.didSelectItemAtIndexHandler!(indexPath)
             if selfie.shouldChangeTitleText! {
                 selfie.setMenuTitle("\(selfie.tableView.items[indexPath])")
             }
@@ -536,11 +536,11 @@ class BTTableView: UITableView, UITableViewDelegate, UITableViewDataSource {
     
     // Public properties
     var configuration: BTConfiguration!
-    var selectRowAtIndexPathHandler: ((indexPath: Int) -> ())?
+    var selectRowAtIndexPathHandler: ((_ indexPath: Int) -> ())?
     var menuDelegate: BTNavigationDropdownDelegate!
     
     // Private properties
-    private var items: [AnyObject]!
+    var items: [AnyObject]!
     private var selectedIndexPath: Int?
     
     required init?(coder aDecoder: NSCoder) {
@@ -598,7 +598,7 @@ class BTTableView: UITableView, UITableViewDelegate, UITableViewDataSource {
     // Table view delegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedIndexPath = (indexPath as NSIndexPath).row
-        self.selectRowAtIndexPathHandler!(indexPath: (indexPath as NSIndexPath).row)
+        self.selectRowAtIndexPathHandler!((indexPath as NSIndexPath).row)
         self.reloadData()
         let cell = tableView.cellForRow(at: indexPath) as? BTTableViewCell
         cell?.contentView.backgroundColor = self.configuration.cellSelectionColor
@@ -707,8 +707,8 @@ class BTTableCellContentView: UIView {
         // Set separator color of dropdown menu based on barStyle
         context?.setStrokeColor(self.separatorColor.cgColor)
         context?.setLineWidth(1)
-        context?.moveTo(x: 0, y: self.bounds.size.height)
-        context?.addLineTo(x: self.bounds.size.width, y: self.bounds.size.height)
+        context?.move(to: CGPoint(x: 0, y: self.bounds.size.height))
+        context?.addLine(to: CGPoint(x: self.bounds.size.width, y: self.bounds.size.height))
         context?.strokePath()
     }
 }
