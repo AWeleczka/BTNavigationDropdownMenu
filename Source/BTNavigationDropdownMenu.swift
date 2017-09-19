@@ -331,7 +331,9 @@ public class BTNavigationDropdownMenu: UIView {
         containerView.addSubview(self.menuWrapper)
         
         // By default, hide menu view
-        self.menuWrapper.isHidden = true        
+        self.menuWrapper.isHidden = true
+
+      NotificationCenter.default.addObserver(self, selector: #selector(self.hide), name: NSNotification.Name("BTTableView_TapOutside"), object: nil)
     }
     
     override public func layoutSubviews() {
@@ -565,10 +567,16 @@ class BTTableView: UITableView, UITableViewDelegate, UITableViewDataSource {
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        if let hitView = super.hitTest(point, with: event) , hitView.isKind(of: BTTableCellContentView.self) || hitView.isKind(of: UIView.self) {
-            return hitView
-        }
-        return nil;
+      if let hitView = super.hitTest(point, with: event), hitView.isKind(of: BTTableCellContentView.self) {
+        return hitView
+      } else if let hitView = super.hitTest(point, with: event), hitView.isKind(of: BTTableView.self) {
+        NotificationCenter.default.post(name: NSNotification.Name("BTTableView_TapOutside"), object: nil)
+        return hitView
+      } else if let hitView = super.hitTest(point, with: event), hitView.isKind(of: UIView.self) {
+        return hitView
+      }
+
+      return nil;
     }
     
     // Table view data source
